@@ -9,6 +9,11 @@ namespace WebAPI.Repositories
 {
     public class UserRepository : IUserRepository
     {
+        // 实现IUserRepository接口中的GetByUsernameAsync方法
+        public async Task<User> GetByUsernameAsync(string username)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+        }
         private readonly ApplicationDbContext _context;
 
         public UserRepository(ApplicationDbContext context)

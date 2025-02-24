@@ -4,6 +4,10 @@ using WebAPI.Repositories;
 using Serilog;
 using Serilog.Events;
 using Microsoft.AspNetCore.HttpLogging;
+using WebAPI.Middleware;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +28,25 @@ builder.Host.UseSerilog();
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.PropertyNamingPolicy = null;
+});
+
+// 配置JWT认证服务
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+    };
 });
 
 // Configure SQLite
@@ -59,8 +82,26 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 // Enable HTTP logging middleware
 app.UseHttpLogging();
+
+// Enable static files middleware
+app.UseStaticFiles();
+
+// Configure token validation middleware to skip static files
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/lib") || 
+        context.Request.Path.StartsWithSegments("/admin"))
+    {
+        await next();
+        return;
+    }
+    await next();
+});
 
 // 获取详细的错误信息
 async Task<string> GetErrorDetails(HttpContext context)
@@ -147,9 +188,21 @@ app.Use(async (context, next) =>
     }
 });
 
-app.UseAuthorization();
-
 app.MapControllers();
+
+// Configure token validation middleware to skip static files
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/lib") || 
+        context.Request.Path.StartsWithSegments("/admin"))
+    {
+        await next();
+        return;
+    }
+    await next();
+});
+
+app.UseMiddleware<TokenValidationMiddleware>();
 
 app.Run();
 

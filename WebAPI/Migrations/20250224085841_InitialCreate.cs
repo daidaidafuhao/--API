@@ -15,9 +15,8 @@ namespace WebAPI.Migrations
                 name: "Employees",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
                     IDCardNumber = table.Column<string>(type: "TEXT", maxLength: 18, nullable: false),
                     Photo = table.Column<string>(type: "TEXT", nullable: true),
                     Education = table.Column<string>(type: "TEXT", nullable: true),
@@ -45,7 +44,11 @@ namespace WebAPI.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Username = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    Password = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
                     Email = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    Role = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
+                    Permissions = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
@@ -61,8 +64,8 @@ namespace WebAPI.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     IDCardNumber = table.Column<string>(type: "TEXT", maxLength: 18, nullable: false),
-                    ImportCount = table.Column<int>(type: "INTEGER", nullable: false),
-                    ImportTime = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    ImportCount = table.Column<string>(type: "TEXT", nullable: false),
+                    ImportTime = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -101,13 +104,13 @@ namespace WebAPI.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     SerialNumber = table.Column<int>(type: "INTEGER", nullable: false),
                     TrainingDate = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    TrainingContent = table.Column<string>(type: "TEXT", nullable: false),
-                    TrainingUnit = table.Column<string>(type: "TEXT", nullable: false),
-                    TrainingLocation = table.Column<string>(type: "TEXT", nullable: false),
+                    TrainingContent = table.Column<string>(type: "TEXT", nullable: true),
+                    TrainingUnit = table.Column<string>(type: "TEXT", nullable: true),
+                    TrainingLocation = table.Column<string>(type: "TEXT", nullable: true),
                     Assessment = table.Column<string>(type: "TEXT", nullable: true),
                     Cost = table.Column<decimal>(type: "TEXT", nullable: true),
                     Remarks = table.Column<string>(type: "TEXT", nullable: true),
-                    EmployeeId = table.Column<int>(type: "INTEGER", nullable: false)
+                    EmployeeId = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {

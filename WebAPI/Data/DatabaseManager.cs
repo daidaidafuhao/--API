@@ -273,7 +273,7 @@ namespace WebAPI.Data
                         {
                             results.Add(new Employee
                             {
-                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                                Id = reader.GetOrdinal("Id").ToString(),
                                 Name = reader.GetString(reader.GetOrdinal("Name")),
                                 IDCardNumber = reader.GetString(reader.GetOrdinal("IDCardNumber")),
                                 Photo = reader.IsDBNull(reader.GetOrdinal("Photo")) ? null : reader.GetString(reader.GetOrdinal("Photo")),
@@ -322,7 +322,7 @@ namespace WebAPI.Data
                         {
                             var employee = new Employee
                             {
-                                Id = reader.GetInt32(0),
+                                Id = "0",
                                 Name = reader.GetString(1),
                                 IDCardNumber = reader.GetString(2),
                                 Photo = reader.IsDBNull(3) ? null : reader.GetString(3),

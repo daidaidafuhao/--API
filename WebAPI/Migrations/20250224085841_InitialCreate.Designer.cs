@@ -11,7 +11,7 @@ using WebAPI.Data;
 namespace WebAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250222045659_InitialCreate")]
+    [Migration("20250224085841_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -22,9 +22,8 @@ namespace WebAPI.Migrations
 
             modelBuilder.Entity("WebAPI.Models.Employee", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Education")
                         .HasColumnType("TEXT");
@@ -41,7 +40,6 @@ namespace WebAPI.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
@@ -91,10 +89,12 @@ namespace WebAPI.Migrations
                         .HasMaxLength(18)
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("ImportCount")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("ImportCount")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("ImportTime")
+                    b.Property<string>("ImportTime")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -131,8 +131,9 @@ namespace WebAPI.Migrations
                     b.Property<decimal?>("Cost")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("EmployeeId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("EmployeeId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Remarks")
                         .HasColumnType("TEXT");
@@ -141,18 +142,15 @@ namespace WebAPI.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("TrainingContent")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("TrainingDate")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("TrainingLocation")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("TrainingUnit")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -174,6 +172,23 @@ namespace WebAPI.Migrations
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Permissions")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("UpdatedAt")

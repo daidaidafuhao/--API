@@ -11,7 +11,7 @@ namespace WebAPI.Models
         /// <summary>
         /// 主键ID
         /// </summary>
-        public int Id { get; set; }
+        public string? Id { get; set; }
 
         /// <summary>
         /// 员工姓名，最大长度50个字符

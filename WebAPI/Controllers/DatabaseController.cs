@@ -475,5 +475,26 @@ namespace WebAPI.Controllers
                 return BadRequest(new { success = false, message = ex.Message });
             }
         }
+        /// <summary>
+        /// 测试API连接状态
+        /// </summary>
+        /// <returns>服务器状态信息</returns>
+        [HttpGet("test-connection")]
+        public ActionResult TestConnection()
+        {
+            try
+            {
+                return Ok(new { 
+                    success = true, 
+                    message = "服务器连接正常",
+                    timestamp = DateTime.Now,
+                    serverStatus = "running"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
     }
 }

@@ -25,6 +25,10 @@ namespace WebAPI.Data
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Username).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.Email).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Password).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Role).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.IsActive).IsRequired();
+                entity.Property(e => e.Permissions).HasMaxLength(500);
             });
 
             modelBuilder.Entity<Employee>(entity =>
@@ -39,7 +43,8 @@ namespace WebAPI.Data
                 entity.HasKey(e => e.Id);
                 entity.HasOne(e => e.Employee)
                     .WithMany()
-                    .HasForeignKey(e => e.EmployeeId);
+                    .HasForeignKey(e => e.EmployeeId)
+                    .HasPrincipalKey(e => e.Id);
             });
 
             modelBuilder.Entity<PhotoTable>(entity =>
