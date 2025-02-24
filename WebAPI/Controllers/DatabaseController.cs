@@ -18,6 +18,32 @@ namespace WebAPI.Controllers
             _databaseManager = new DatabaseManager();
         }
 
+
+        /// <summary>
+        /// 获取下拉框选项数据
+        /// </summary>
+        /// <param name="query">SQL查询语句</param>
+        /// <returns>选项列表</returns>
+        [HttpGet("combobox-items")]
+        public ActionResult<List<string>> GetComboBoxItems([FromQuery] string query)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(query))
+                {
+                    return BadRequest(new { success = false, message = "查询语句不能为空" });
+                }
+
+                var items = _databaseManager.LoadComboBoxItems(query);
+                return Ok(items);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+
         /// <summary>
         /// 获取所有员工信息
         /// </summary>
