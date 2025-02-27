@@ -29,6 +29,18 @@ namespace WebAPI.Data
                 entity.Property(e => e.Role).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.IsActive).IsRequired();
                 entity.Property(e => e.Permissions).HasMaxLength(500);
+
+                // 添加默认管理员用户
+                entity.HasData(new User
+                {
+                    Id = 1,
+                    Username = "admin",
+                    Email = "admin@example.com",
+                    Password = "AQAAAAIAAYagAAAAELbHJwQUvHJBXgJHVYyL0ckWeJFJ+ZEWJMqVqzNqB1HQjB+wJQXvvNXVTJQP6YNKKA==", // 默认密码: Admin@123
+                    Role = "Administrator",
+                    IsActive = true,
+                    Permissions = "all"
+                });
             });
 
             modelBuilder.Entity<Employee>(entity =>

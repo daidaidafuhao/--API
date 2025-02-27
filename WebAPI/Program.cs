@@ -8,6 +8,7 @@ using WebAPI.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using WebAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,10 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 builder.Host.UseSerilog();
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.ListenAnyIP(5115); // 配置Kestrel监听所有IP地址
+});
 
 // Add services to the container.
 builder.Services.AddControllers().AddJsonOptions(options =>
@@ -55,6 +60,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Register repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+// Register UDP broadcast service
+builder.Services.AddHostedService<UdpBroadcastService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
