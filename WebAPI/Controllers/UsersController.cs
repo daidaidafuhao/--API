@@ -44,10 +44,18 @@ namespace WebAPI.Controllers
             if (request.Password != user.Password)
             {
                 return Unauthorized(new { message = "用户名或密码错误" });
-            }
-
-            // 生成JWT Token
+            }    // 生成JWT Token
             var token = GenerateJwtToken(user);
+             if (user.Role.ToLower() == "admin")
+                {
+                
+                        user.Role = null;
+                        return Ok(new LoginResponse
+                        {
+                            Token = token,
+                            User = user
+                        });
+                }
 
             return Ok(new LoginResponse
             {
