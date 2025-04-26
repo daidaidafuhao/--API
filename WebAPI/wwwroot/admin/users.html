@@ -54,30 +54,8 @@
                             <div class="mb-3">
                                 <label class="form-label">角色</label>
                                 <select class="form-select" id="role" required>
-                                    <option value="admin">管理员</option>
-                                    <option value="user">普通用户</option>
+                                    <!-- 角色选项将通过API动态加载 -->
                                 </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">权限</label>
-                                <div id="permissions" class="form-check">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="users.view" id="perm_users_view">
-                                        <label class="form-check-label">查看用户</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="users.edit" id="perm_users_edit">
-                                        <label class="form-check-label">编辑用户</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="users.delete" id="perm_users_delete">
-                                        <label class="form-check-label">删除用户</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mb-3 form-check">
-                                <input type="checkbox" class="form-check-input" id="isActive">
-                                <label class="form-check-label">账户激活</label>
                             </div>
                         </form>
                     </div>

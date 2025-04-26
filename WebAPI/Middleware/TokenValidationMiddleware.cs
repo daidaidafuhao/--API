@@ -54,13 +54,29 @@ namespace WebAPI.Middleware
             {
                 "/api/database/test-connection",
                 "/api/Users/login",
-                 "/api/Users",
-                "/admin/users.html",
-                "/favicon.ico"
+                "/api/Users/loginAdmin",
+                "/lib",  // 移除尾部斜杠以确保正确匹配
+                "/js",   // 添加js目录
+                "/css", // 添加css目录
+                "/admin", // 添加admin目录
+                "/login.html",
+                "/index.html",
+                "/",
+                "/favicon.ico",
+                "/wwwroot" // 添加wwwroot目录
                 // 可以添加其他豁免路径
             };
 
-            return exemptPaths.Any(p => path.StartsWithSegments(p, StringComparison.OrdinalIgnoreCase));
+            // 检查路径是否以任何豁免路径开头
+            foreach (var exemptPath in exemptPaths)
+            {
+                if (path.Value?.StartsWith(exemptPath, StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    return true;
+                }
+            }
+            
+            return false;
         }
 
         private bool IsValidToken(string bearerToken)

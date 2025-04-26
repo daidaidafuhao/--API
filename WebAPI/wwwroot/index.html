@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统首页</title>
+    <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .welcome-container {
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .welcome-title {
+            margin-bottom: 30px;
+            color: #333;
+        }
+        .btn-enter {
+            padding: 10px 30px;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 welcome-container">
+                <h1 class="welcome-title">欢迎使用管理系统</h1>
+                <p class="lead">这是一个基于ASP.NET Core和Bootstrap构建的管理系统</p>
+                <a href="login.html" class="btn btn-primary btn-enter">进入系统</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 检查是否已登录
+            const token = localStorage.getItem('token');
+            if (token) {
+                // 已登录，直接跳转到管理页面
+                window.location.href = '/admin/users.html';
+            }
+        });
+    </script>
+</body>
+</html>

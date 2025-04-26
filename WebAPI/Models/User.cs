@@ -23,7 +23,6 @@ namespace WebAPI.Models
         /// <summary>
         /// 密码
         /// </summary>
-        [Required]
         [MaxLength(100)]
         public string Password { get; set; }
 

@@ -3,15 +3,120 @@ let users = [];
 
 // 初始化页面
 document.addEventListener('DOMContentLoaded', () => {
+    // 检查是否已登录
+    checkLoginStatus();
     loadUsers();
+    loadRoles();
 });
+
+// 检查用户是否已登录
+function checkLoginStatus() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        // 未登录，跳转到登录页面
+        window.location.href = '/login.html';
+    }
+}
+
+// 获取授权头
+function getAuthHeader() {
+    const token = localStorage.getItem('token');
+    return {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+    };
+}
+
+// 处理API响应
+async function handleApiResponse(response) {
+    if (response.status === 401) {
+        // 令牌无效或过期，重定向到登录页面
+        localStorage.removeItem('token');
+        Swal.fire({
+            title: '会话已过期',
+            text: '请重新登录',
+            icon: 'warning',
+            confirmButtonText: '确定'
+        }).then(() => {
+            window.location.href = '/login.html';
+        });
+        throw new Error('未授权');
+    }
+    return response;
+}
+
+// 加载角色列表
+async function loadRoles() {
+    try {
+        const response = await fetch('/api/Database/roles', {
+            headers: getAuthHeader()
+        });
+        
+        const handledResponse = await handleApiResponse(response);
+        
+        if (handledResponse.ok) {
+            const roles = await handledResponse.json();
+            const roleSelect = document.getElementById('role');
+            roleSelect.innerHTML = '';
+            
+            // 在列表顶部添加Admin选项
+            const adminOption = document.createElement('option');
+            adminOption.value = 'Admin';
+            adminOption.textContent = 'Admin';
+            roleSelect.appendChild(adminOption);
+            
+            roles.forEach(role => {
+                // 如果角色已经是Admin，则跳过，避免重复
+                if (role.toLowerCase() !== 'admin') {
+                    const option = document.createElement('option');
+                    option.value = role;
+                    option.textContent = role;
+                    roleSelect.appendChild(option);
+                }
+            });
+            
+            // 如果没有角色数据，添加默认选项
+            if (roles.length === 0) {
+                const defaultOptions = [
+                    { value: 'user', text: '普通用户' }
+                ];
+                
+                defaultOptions.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt.value;
+                    option.textContent = opt.text;
+                    roleSelect.appendChild(option);
+                });
+            }
+        } else {
+            throw new Error('获取角色列表失败');
+        }
+    } catch (error) {
+        console.error('加载角色列表失败:', error);
+        // 加载失败时使用默认角色
+        const roleSelect = document.getElementById('role');
+        roleSelect.innerHTML = `
+            <option value="Admin">Admin</option>
+            <option value="user">普通用户</option>
+        `;
+    }
+}
 
 // 加载用户列表
 async function loadUsers() {
     try {
-        const response = await fetch('/api/Users');
-        users = await response.json();
-        renderUserTable();
+        const response = await fetch('/api/Users', {
+            headers: getAuthHeader()
+        });
+        
+        const handledResponse = await handleApiResponse(response);
+        
+        if (handledResponse.ok) {
+            users = await handledResponse.json();
+            renderUserTable();
+        } else {
+            throw new Error('获取用户列表失败');
+        }
     } catch (error) {
         showError('加载用户列表失败');
     }
@@ -47,7 +152,7 @@ async function saveUser() {
         password: document.getElementById('password').value,
         email: document.getElementById('email').value,
         role: document.getElementById('role').value,
-        isActive: document.getElementById('isActive').checked,
+        isActive: true,
         permissions: getSelectedPermissions()
     };
 
@@ -57,18 +162,20 @@ async function saveUser() {
             user.id = parseInt(userId);
             response = await fetch(`/api/Users/${userId}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: getAuthHeader(),
                 body: JSON.stringify(user)
             });
         } else {
             response = await fetch('/api/Users', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: getAuthHeader(),
                 body: JSON.stringify(user)
             });
         }
 
-        if (response.ok) {
+        const handledResponse = await handleApiResponse(response);
+        
+        if (handledResponse.ok) {
             await loadUsers();
             closeModal();
             showSuccess(userId ? '用户更新成功' : '用户创建成功');
@@ -91,7 +198,7 @@ function editUser(id) {
         document.getElementById('password').value = '';
         document.getElementById('email').value = user.Email;
         document.getElementById('role').value = user.Role;
-        document.getElementById('isActive').checked = user.IsActive;
+        // document.getElementById('isActive').checked = user.IsActive;
         setPermissions(user.permissions);
         
         document.getElementById('modalTitle').textContent = '编辑用户';
@@ -105,10 +212,13 @@ async function deleteUser(id) {
     if (await confirmDelete()) {
         try {
             const response = await fetch(`/api/Users/${id}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: getAuthHeader()
             });
             
-            if (response.ok) {
+            const handledResponse = await handleApiResponse(response);
+            
+            if (handledResponse.ok) {
                 await loadUsers();
                 showSuccess('用户删除成功');
             } else {
@@ -123,18 +233,27 @@ async function deleteUser(id) {
 // 获取选中的权限
 function getSelectedPermissions() {
     const permissions = [];
-    document.querySelectorAll('#permissions input[type="checkbox"]:checked').forEach(checkbox => {
-        permissions.push(checkbox.value);
-    });
+    const permissionsContainer = document.getElementById('permissions');
+    // 检查权限容器是否存在
+    if (permissionsContainer) {
+        document.querySelectorAll('#permissions input[type="checkbox"]:checked').forEach(checkbox => {
+            permissions.push(checkbox.value);
+        });
+    }
     return JSON.stringify(permissions);
 }
 
 // 设置权限选中状态
 function setPermissions(permissionsJson) {
     const permissions = JSON.parse(permissionsJson || '[]');
-    document.querySelectorAll('#permissions input[type="checkbox"]').forEach(checkbox => {
-        checkbox.checked = permissions.includes(checkbox.value);
-    });
+    const permissionsContainer = document.getElementById('permissions');
+    // 检查权限容器是否存在
+    if (permissionsContainer) {
+        document.querySelectorAll('#permissions input[type="checkbox"]').forEach(checkbox => {
+            checkbox.checked = permissions.includes(checkbox.value);
+        });
+    }
+    // 如果权限容器不存在，不执行任何操作
 }
 
 // 关闭模态框
@@ -155,10 +274,12 @@ function resetForm() {
 function confirmDelete() {
     return Swal.fire({
         title: '确认删除',
-        text: '确定要删除这个用户吗？',
+        text: '此操作不可逆，确定要删除吗？',
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: '确定',
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: '确定删除',
         cancelButtonText: '取消'
     }).then(result => result.isConfirmed);
 }
@@ -168,7 +289,9 @@ function showSuccess(message) {
     Swal.fire({
         title: '成功',
         text: message,
-        icon: 'success'
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false
     });
 }
 
@@ -177,6 +300,7 @@ function showError(message) {
     Swal.fire({
         title: '错误',
         text: message,
-        icon: 'error'
+        icon: 'error',
+        confirmButtonText: '确定'
     });
 }

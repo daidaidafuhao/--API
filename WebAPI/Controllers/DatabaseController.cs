@@ -476,6 +476,27 @@ namespace WebAPI.Controllers
             }
         }
         /// <summary>
+        /// 获取用户角色列表
+        /// </summary>
+        /// <returns>角色列表</returns>
+        [HttpGet("roles")]
+        public ActionResult<List<string>> GetRoles()
+        {
+            try
+            {
+                // 这里可以根据实际需求从数据库中获取角色列表
+                // 示例：使用现有的LoadComboBoxItems方法获取角色
+                var query = "SELECT DISTINCT UnitName FROM Employee";
+                var roles = _databaseManager.LoadComboBoxItems(query);
+                return Ok(roles);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+        /// <summary>
         /// 测试API连接状态
         /// </summary>
         /// <returns>服务器状态信息</returns>

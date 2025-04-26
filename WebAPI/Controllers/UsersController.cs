@@ -9,14 +9,14 @@ using Microsoft.IdentityModel.Tokens;
 using WebAPI.Models;
 using WebAPI.Repositories;
 using Microsoft.AspNetCore.Authorization;
-using WebAPI.Filters;
+
 using System.Text;
 
 namespace WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [LocalHostOnly]
+
     public class UsersController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
@@ -56,6 +56,38 @@ namespace WebAPI.Controllers
             });
         }
 
+
+        [AllowAnonymous]
+        [HttpPost("loginAdmin")]
+        public async Task<ActionResult<LoginResponse>> LoginAdmin([FromBody] LoginRequest request)
+        {
+            // 验证用户凭据
+            var user = await _userRepository.GetByUsernameAsync(request.Username);
+            if (user == null)
+            {
+                return Unauthorized(new { message = "用户名或密码错误" });
+            }
+
+            // TODO: 在实际应用中，这里应该验证密码哈希
+            // 为了演示，这里简单比较密码
+            if (request.Password != user.Password)
+            {
+                return Unauthorized(new { message = "用户名或密码错误" });
+            }
+           if (user.Role.ToLower() != "admin")
+            {
+                return Unauthorized(new { message = "您没有权限访问" });
+            }
+
+            // 生成JWT Token
+            var token = GenerateJwtToken(user);
+
+            return Ok(new LoginResponse
+            {
+                Token = token,
+                User = user
+            });
+        }
         private string GenerateJwtToken(User user)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not configured")));

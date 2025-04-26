@@ -49,6 +49,14 @@ namespace WebAPI.Repositories
 
             existingUser.Username = user.Username;
             existingUser.Email = user.Email;
+            existingUser.Role = user.Role; // 添加角色更新
+            existingUser.IsActive = user.IsActive; // 添加激活状态更新
+            existingUser.Permissions = user.Permissions; // 添加权限更新
+            // 如果密码字段为空，保留原有密码
+            if (!string.IsNullOrEmpty(user.Password))
+            {
+                existingUser.Password = user.Password;
+            }
             existingUser.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
