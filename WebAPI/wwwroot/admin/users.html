@@ -6,6 +6,15 @@
     <title>用户管理</title>
     <link href="../lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="../lib/sweetalert2/css/sweetalert2.min.css" rel="stylesheet">
+    <style>
+        .role-checkbox-container {
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+            padding: 0.5rem;
+        }
+    </style>
 </head>
 <body>
     <div class="container mt-4">
@@ -53,9 +62,9 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">角色</label>
-                                <select class="form-select" id="role" required>
+                                <div class="role-checkbox-container" id="roleCheckboxes">
                                     <!-- 角色选项将通过API动态加载 -->
-                                </select>
+                                </div>
                             </div>
                         </form>
                     </div>

@@ -56,36 +56,38 @@ async function loadRoles() {
         
         if (handledResponse.ok) {
             const roles = await handledResponse.json();
-            const roleSelect = document.getElementById('role');
-            roleSelect.innerHTML = '';
-            
-            // 在列表顶部添加Admin选项
-            const adminOption = document.createElement('option');
-            adminOption.value = 'Admin';
-            adminOption.textContent = 'Admin';
-            roleSelect.appendChild(adminOption);
+            const roleContainer = document.getElementById('roleCheckboxes');
+            roleContainer.innerHTML = '';
             
             roles.forEach(role => {
-                // 如果角色已经是Admin，则跳过，避免重复
-                if (role.toLowerCase() !== 'admin') {
-                    const option = document.createElement('option');
-                    option.value = role;
-                    option.textContent = role;
-                    roleSelect.appendChild(option);
-                }
+                const div = document.createElement('div');
+                div.className = 'form-check';
+                div.innerHTML = `
+                    <input class="form-check-input role-checkbox" type="checkbox" value="${role}" id="role-${role}">
+                    <label class="form-check-label" for="role-${role}">
+                        ${role}
+                    </label>
+                `;
+                roleContainer.appendChild(div);
             });
             
             // 如果没有角色数据，添加默认选项
             if (roles.length === 0) {
                 const defaultOptions = [
+                    { value: 'admin', text: '管理员' },
                     { value: 'user', text: '普通用户' }
                 ];
                 
                 defaultOptions.forEach(opt => {
-                    const option = document.createElement('option');
-                    option.value = opt.value;
-                    option.textContent = opt.text;
-                    roleSelect.appendChild(option);
+                    const div = document.createElement('div');
+                    div.className = 'form-check';
+                    div.innerHTML = `
+                        <input class="form-check-input role-checkbox" type="checkbox" value="${opt.value}" id="role-${opt.value}">
+                        <label class="form-check-label" for="role-${opt.value}">
+                            ${opt.text}
+                        </label>
+                    `;
+                    roleContainer.appendChild(div);
                 });
             }
         } else {
@@ -94,10 +96,20 @@ async function loadRoles() {
     } catch (error) {
         console.error('加载角色列表失败:', error);
         // 加载失败时使用默认角色
-        const roleSelect = document.getElementById('role');
-        roleSelect.innerHTML = `
-            <option value="Admin">Admin</option>
-            <option value="user">普通用户</option>
+        const roleContainer = document.getElementById('roleCheckboxes');
+        roleContainer.innerHTML = `
+            <div class="form-check">
+                <input class="form-check-input role-checkbox" type="checkbox" value="admin" id="role-admin">
+                <label class="form-check-label" for="role-admin">
+                    管理员
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input role-checkbox" type="checkbox" value="user" id="role-user">
+                <label class="form-check-label" for="role-user">
+                    普通用户
+                </label>
+            </div>
         `;
     }
 }
@@ -133,7 +145,7 @@ function renderUserTable() {
             <td>${user.Id}</td>
             <td>${user.Username}</td>
             <td>${user.Email}</td>
-            <td>${user.Role}</td>
+            <td>${user.Role ? user.Role.replace(/_/g, ', ') : ''}</td>
             <td>${user.IsActive ? '激活' : '禁用'}</td>
             <td>
                 <button class="btn btn-sm btn-primary me-2" onclick="editUser(${user.Id})">编辑</button>
@@ -144,6 +156,25 @@ function renderUserTable() {
     });
 }
 
+// 获取选中的角色
+function getSelectedRoles() {
+    const selectedRoles = [];
+    document.querySelectorAll('.role-checkbox:checked').forEach(checkbox => {
+        selectedRoles.push(checkbox.value);
+    });
+    return selectedRoles.join('_');
+}
+
+// 设置角色选中状态
+function setSelectedRoles(rolesString) {
+    if (!rolesString) return;
+    
+    const roles = rolesString.split('_');
+    document.querySelectorAll('.role-checkbox').forEach(checkbox => {
+        checkbox.checked = roles.includes(checkbox.value);
+    });
+}
+
 // 保存用户
 async function saveUser() {
     const userId = document.getElementById('userId').value;
@@ -151,7 +182,7 @@ async function saveUser() {
         username: document.getElementById('username').value,
         password: document.getElementById('password').value,
         email: document.getElementById('email').value,
-        role: document.getElementById('role').value,
+        role: getSelectedRoles(),
         isActive: true,
         permissions: getSelectedPermissions()
     };
@@ -197,8 +228,7 @@ function editUser(id) {
         document.getElementById('username').value = user.Username;
         document.getElementById('password').value = '';
         document.getElementById('email').value = user.Email;
-        document.getElementById('role').value = user.Role;
-        // document.getElementById('isActive').checked = user.IsActive;
+        setSelectedRoles(user.Role);
         setPermissions(user.permissions);
         
         document.getElementById('modalTitle').textContent = '编辑用户';
@@ -268,6 +298,10 @@ function resetForm() {
     document.getElementById('userForm').reset();
     document.getElementById('userId').value = '';
     document.getElementById('modalTitle').textContent = '添加用户';
+    // 清除所有角色选择
+    document.querySelectorAll('.role-checkbox').forEach(checkbox => {
+        checkbox.checked = false;
+    });
 }
 
 // 确认删除
